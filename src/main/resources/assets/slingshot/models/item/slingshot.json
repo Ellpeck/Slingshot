@@ -48,9 +48,15 @@
         },
         {
             "predicate": {
-                "slingshot:charged": 1
+                "slingshot:carrot": 1
             },
             "model": "slingshot:item/slingshot_carrot"
+        },
+        {
+            "predicate": {
+                "slingshot:potato": 1
+            },
+            "model": "slingshot:item/slingshot_potato"
         }
     ]
 }
