@@ -1,0 +1,6 @@
+{
+    "parent": "slingshot:item/slingshot",
+    "textures": {
+        "layer0": "slingshot:item/slingshot_pumpkin_seeds"
+    }
+}

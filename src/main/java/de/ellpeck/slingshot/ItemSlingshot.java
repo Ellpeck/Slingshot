@@ -1,13 +1,13 @@
 package de.ellpeck.slingshot;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileItemEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
 
 public class ItemSlingshot extends Item {
@@ -32,8 +32,12 @@ public class ItemSlingshot extends Item {
             return new ActionResult<>(ActionResultType.SUCCESS, stack);
         }
 
-        // TODO shoot the projectile
-        System.out.println("SHOOT");
+        if (!worldIn.isRemote) {
+            SlingshotBehavior behavior = Registry.getBehavior(charged);
+            Entity projectile = behavior.projectileDelegate.createProjectile(worldIn, playerIn, stack, charged, this);
+            worldIn.addEntity(projectile);
+            worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1, 1);
+        }
 
         setChargedItem(stack, ItemStack.EMPTY);
         return new ActionResult<>(ActionResultType.SUCCESS, stack);

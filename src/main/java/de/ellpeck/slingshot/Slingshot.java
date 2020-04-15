@@ -1,19 +1,19 @@
 package de.ellpeck.slingshot;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(Slingshot.ID)
-public class Slingshot {
+public final class Slingshot {
 
     public static final String ID = "slingshot";
 
     public Slingshot() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-    }
-
-    private void setup(FMLCommonSetupEvent event) {
-        Registry.init();
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        bus.addListener(Registry::setup);
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> bus.addListener(Registry.Client::setup));
     }
 }

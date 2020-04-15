@@ -57,6 +57,30 @@
                 "slingshot:potato": 1
             },
             "model": "slingshot:item/slingshot_potato"
+        },
+        {
+            "predicate": {
+                "slingshot:beetroot_seeds": 1
+            },
+            "model": "slingshot:item/slingshot_beetroot_seeds"
+        },
+        {
+            "predicate": {
+                "slingshot:melon_seeds": 1
+            },
+            "model": "slingshot:item/slingshot_melon_seeds"
+        },
+        {
+            "predicate": {
+                "slingshot:pumpkin_seeds": 1
+            },
+            "model": "slingshot:item/slingshot_pumpkin_seeds"
+        },
+        {
+            "predicate": {
+                "slingshot:wheat_seeds": 1
+            },
+            "model": "slingshot:item/slingshot_wheat_seeds"
         }
     ]
 }
