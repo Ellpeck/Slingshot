@@ -1,5 +1,7 @@
 package de.ellpeck.slingshot;
 
+import de.ellpeck.slingshot.entity.GunpowderProjectile;
+import de.ellpeck.slingshot.entity.EntityProjectile;
 import de.ellpeck.slingshot.entity.PlacingProjectile;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
@@ -29,7 +31,8 @@ public final class Registry {
     private static final List<SlingshotBehavior> BEHAVIORS = new ArrayList<>();
     public static Item slingshot;
 
-    public static EntityType<PlacingProjectile> seedProjectile;
+    public static EntityType<PlacingProjectile> placingProjectile;
+    public static EntityType<GunpowderProjectile> gunpowderProjectile;
 
     public static void setup(FMLCommonSetupEvent event) {
         addPlaceBehavior("carrot", new ItemStack(Items.CARROT), 40, 3, 0.75F, null);
@@ -40,12 +43,17 @@ public final class Registry {
         addPlaceBehavior("pumpkin_seeds", new ItemStack(Items.PUMPKIN_SEEDS), 20, 0.75F, 0.45F, null);
         addBehavior(new SlingshotBehavior("ender_pearl", new ItemStack(Items.ENDER_PEARL), 30, (world, player, stack, charged, item) -> {
             EnderPearlEntity pearl = new EnderPearlEntity(world, player);
-            pearl.setItem(charged);
+            pearl.setItem(charged.copy());
             pearl.shoot(player, player.rotationPitch, player.rotationYaw, 0, 2.5F, 1);
             return pearl;
         }));
         addPlaceBehavior("torch", new ItemStack(Blocks.TORCH), 50, 6, 2, p -> p.fireChance = 0.25F);
         addPlaceBehavior("redstone_torch", new ItemStack(Blocks.REDSTONE_TORCH), 50, 6, 2, null);
+        addBehavior(new SlingshotBehavior("gunpowder", new ItemStack(Items.GUNPOWDER), 40, (world, player, stack, charged, item) -> {
+            GunpowderProjectile projectile = new GunpowderProjectile(gunpowderProjectile, player, player.world, charged);
+            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.65F, 0);
+            return projectile;
+        }));
     }
 
     @SubscribeEvent
@@ -56,11 +64,16 @@ public final class Registry {
     @SubscribeEvent
     public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(
-                seedProjectile = (EntityType<PlacingProjectile>) EntityType.Builder
-                        .<PlacingProjectile>create(PlacingProjectile::new, EntityClassification.MISC)
-                        .size(0.25F, 0.25F).setShouldReceiveVelocityUpdates(true).setTrackingRange(64)
-                        .setUpdateInterval(3).build(Slingshot.ID + ":seed").setRegistryName("seed")
+                placingProjectile = buildProjectile("placing", PlacingProjectile::new),
+                gunpowderProjectile = buildProjectile("gunpowder", GunpowderProjectile::new)
         );
+    }
+
+    private static <T extends EntityProjectile> EntityType<T> buildProjectile(String name, EntityType.IFactory<T> factory) {
+        return (EntityType<T>) EntityType.Builder
+                .create(factory, EntityClassification.MISC)
+                .size(0.25F, 0.25F).setShouldReceiveVelocityUpdates(true).setTrackingRange(64)
+                .setUpdateInterval(3).build(Slingshot.ID + ":" + name).setRegistryName(name);
     }
 
     public static void addBehavior(SlingshotBehavior behavior) {
@@ -70,9 +83,8 @@ public final class Registry {
 
     private static void addPlaceBehavior(String name, ItemStack stack, int chargeTime, float damage, float velocity, Consumer<PlacingProjectile> projectileModifier) {
         addBehavior(new SlingshotBehavior(name, stack, chargeTime, (world, player, stacc, charged, item) -> {
-            PlacingProjectile projectile = new PlacingProjectile(seedProjectile, player, world);
+            PlacingProjectile projectile = new PlacingProjectile(placingProjectile, player, world, charged);
             projectile.setDamage(damage);
-            projectile.setItem(charged.copy());
             projectile.dropItem = true;
             projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, velocity, 0);
             if (projectileModifier != null)
@@ -97,6 +109,7 @@ public final class Registry {
             ItemRenderer renderer = mc.getItemRenderer();
 
             RenderingRegistry.registerEntityRenderingHandler(PlacingProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.35F));
+            RenderingRegistry.registerEntityRenderingHandler(GunpowderProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.35F));
         }
     }
 }

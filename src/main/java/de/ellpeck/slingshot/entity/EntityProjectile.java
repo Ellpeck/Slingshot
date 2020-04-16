@@ -29,8 +29,9 @@ public class EntityProjectile extends ProjectileItemEntity {
         super(type, worldIn);
     }
 
-    public EntityProjectile(EntityType<? extends ProjectileItemEntity> type, LivingEntity entity, World worldIn) {
+    public EntityProjectile(EntityType<? extends ProjectileItemEntity> type, LivingEntity entity, World worldIn, ItemStack stack) {
         super(type, entity, worldIn);
+        this.setItem(stack.copy());
     }
 
     @Override
@@ -57,9 +58,9 @@ public class EntityProjectile extends ProjectileItemEntity {
             entity.attackEntityFrom(DamageSource.causeIndirectDamage(this, this.getThrower()), damage);
             if (this.world.rand.nextFloat() < this.fireChance)
                 entity.setFire(60);
-        }
-        if (this.dropItem)
+        } else if (this.dropItem) {
             this.world.addEntity(new ItemEntity(this.world, this.posX, this.posY, this.posZ, this.getItem()));
+        }
         this.remove();
     }
 

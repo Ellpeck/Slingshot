@@ -20,8 +20,8 @@ public class PlacingProjectile extends EntityProjectile {
         super(type, worldIn);
     }
 
-    public PlacingProjectile(EntityType<? extends ProjectileItemEntity> type, LivingEntity entity, World worldIn) {
-        super(type, entity, worldIn);
+    public PlacingProjectile(EntityType<? extends ProjectileItemEntity> type, LivingEntity entity, World worldIn, ItemStack stack) {
+        super(type, entity, worldIn, stack);
     }
 
     @Override
