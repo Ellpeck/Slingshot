@@ -35,8 +35,8 @@ public final class Registry {
     public static EntityType<GunpowderProjectile> gunpowderProjectile;
 
     public static void setup(FMLCommonSetupEvent event) {
-        addPlaceBehavior("carrot", new ItemStack(Items.CARROT), 40, 3, 0.75F, null);
-        addPlaceBehavior("potato", new ItemStack(Items.POTATO), 40, 3, 0.75F, null);
+        addPlaceBehavior("carrot", new ItemStack(Items.CARROT), 40, 3, 0.85F, null);
+        addPlaceBehavior("potato", new ItemStack(Items.POTATO), 40, 3, 0.8F, null);
         addPlaceBehavior("wheat_seeds", new ItemStack(Items.WHEAT_SEEDS), 20, 0.75F, 0.45F, null);
         addPlaceBehavior("beetroot_seeds", new ItemStack(Items.BEETROOT_SEEDS), 20, 0.75F, 0.45F, null);
         addPlaceBehavior("melon_seeds", new ItemStack(Items.MELON_SEEDS), 20, 0.75F, 0.45F, null);
@@ -54,6 +54,12 @@ public final class Registry {
             projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.65F, 0);
             return projectile;
         }));
+        addPlaceBehavior("oak_sapling", new ItemStack(Blocks.OAK_SAPLING), 40, 5, 0.8F, null);
+        addPlaceBehavior("dark_oak_sapling", new ItemStack(Blocks.DARK_OAK_SAPLING), 40, 5, 0.8F, null);
+        addPlaceBehavior("acacia_sapling", new ItemStack(Blocks.ACACIA_SAPLING), 40, 5, 0.8F, null);
+        addPlaceBehavior("spruce_sapling", new ItemStack(Blocks.SPRUCE_SAPLING), 40, 5, 0.8F, null);
+        addPlaceBehavior("jungle_sapling", new ItemStack(Blocks.JUNGLE_SAPLING), 40, 5, 0.8F, null);
+        addPlaceBehavior("birch_sapling", new ItemStack(Blocks.BIRCH_SAPLING), 40, 5, 0.8F, null);
     }
 
     @SubscribeEvent

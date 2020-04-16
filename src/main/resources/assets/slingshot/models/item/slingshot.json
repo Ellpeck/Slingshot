@@ -105,6 +105,42 @@
                 "slingshot:gunpowder": 1
             },
             "model": "slingshot:item/slingshot_gunpowder"
+        },
+        {
+            "predicate": {
+                "slingshot:jungle_sapling": 1
+            },
+            "model": "slingshot:item/slingshot_jungle_sapling"
+        },
+        {
+            "predicate": {
+                "slingshot:spruce_sapling": 1
+            },
+            "model": "slingshot:item/slingshot_spruce_sapling"
+        },
+        {
+            "predicate": {
+                "slingshot:dark_oak_sapling": 1
+            },
+            "model": "slingshot:item/slingshot_dark_oak_sapling"
+        },
+        {
+            "predicate": {
+                "slingshot:birch_sapling": 1
+            },
+            "model": "slingshot:item/slingshot_birch_sapling"
+        },
+        {
+            "predicate": {
+                "slingshot:oak_sapling": 1
+            },
+            "model": "slingshot:item/slingshot_oak_sapling"
+        },
+        {
+            "predicate": {
+                "slingshot:acacia_sapling": 1
+            },
+            "model": "slingshot:item/slingshot_acacia_sapling"
         }
     ]
 }
