@@ -1,0 +1,28 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "IBI",
+        "STS",
+        " O "
+    ],
+    "key": {
+        "I": {
+            "item": "minecraft:iron_ingot"
+        },
+        "T": {
+            "item": "minecraft:tripwire_hook"
+        },
+        "O": {
+            "item": "minecraft:bowl"
+        },
+        "B": {
+            "item": "minecraft:bow"
+        },
+        "S": {
+            "item": "minecraft:string"
+        }
+    },
+    "result": {
+        "item": "slingshot:slingshot"
+    }
+}
