@@ -1,6 +1,7 @@
 package de.ellpeck.slingshot.entity;
 
 import de.ellpeck.slingshot.Registry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
@@ -22,6 +23,7 @@ public class EntityProjectile extends ProjectileItemEntity {
 
     private static final DataParameter<Float> DAMAGE = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.FLOAT);
     public boolean dropItem;
+    public float fireChance;
 
     public EntityProjectile(EntityType<? extends ProjectileItemEntity> type, World worldIn) {
         super(type, worldIn);
@@ -51,7 +53,10 @@ public class EntityProjectile extends ProjectileItemEntity {
     protected void onImpact(RayTraceResult result) {
         if (result.getType() == RayTraceResult.Type.ENTITY) {
             float damage = this.dataManager.get(DAMAGE);
-            ((EntityRayTraceResult) result).getEntity().attackEntityFrom(DamageSource.causeIndirectDamage(this, this.getThrower()), damage);
+            Entity entity = ((EntityRayTraceResult) result).getEntity();
+            entity.attackEntityFrom(DamageSource.causeIndirectDamage(this, this.getThrower()), damage);
+            if (this.world.rand.nextFloat() < this.fireChance)
+                entity.setFire(60);
         }
         if (this.dropItem)
             this.world.addEntity(new ItemEntity(this.world, this.posX, this.posY, this.posZ, this.getItem()));

@@ -81,6 +81,24 @@
                 "slingshot:wheat_seeds": 1
             },
             "model": "slingshot:item/slingshot_wheat_seeds"
+        },
+        {
+            "predicate": {
+                "slingshot:torch": 1
+            },
+            "model": "slingshot:item/slingshot_torch"
+        },
+        {
+            "predicate": {
+                "slingshot:redstone_torch": 1
+            },
+            "model": "slingshot:item/slingshot_redstone_torch"
+        },
+        {
+            "predicate": {
+                "slingshot:ender_pearl": 1
+            },
+            "model": "slingshot:item/slingshot_ender_pearl"
         }
     ]
 }
