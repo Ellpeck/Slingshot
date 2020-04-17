@@ -3,6 +3,7 @@ package de.ellpeck.slingshot.entity;
 import de.ellpeck.slingshot.Slingshot;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -46,6 +47,6 @@ public class GunpowderProjectile extends EntityProjectile {
         nbt.putBoolean(Slingshot.ID + ":gunpowder", false);
         Explosion.Mode mode = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(entity.world, entity) ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
         entity.world.createExplosion(entity, entity.posX, entity.posY, entity.posZ, 2.5F, mode);
-        entity.remove();
+        entity.setHealth(0);
     }
 }
