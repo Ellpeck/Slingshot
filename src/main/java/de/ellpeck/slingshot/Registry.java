@@ -15,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particles.BlockParticleData;
+import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
@@ -75,30 +76,10 @@ public final class Registry {
                 world.addEntity(projectile);
             }
         }));
-        addBehavior(new SlingshotBehavior("sand", new ItemStack(Blocks.SAND), 40, (world, player, stack, charged, item) -> {
-            EffectCloudProjectile projectile = new EffectCloudProjectile(effectCloudProjectile, player, player.world, charged);
-            projectile.setEffect(2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SAND.getDefaultState()), new EffectInstance(Effects.INSTANT_DAMAGE), new EffectInstance(Effects.BLINDNESS, 60));
-            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.45F, 0);
-            world.addEntity(projectile);
-        }));
-        addBehavior(new SlingshotBehavior("soul_sand", new ItemStack(Blocks.SOUL_SAND), 60, (world, player, stack, charged, item) -> {
-            EffectCloudProjectile projectile = new EffectCloudProjectile(effectCloudProjectile, player, player.world, charged);
-            projectile.setEffect(2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SOUL_SAND.getDefaultState()), new EffectInstance(Effects.INSTANT_DAMAGE), new EffectInstance(Effects.WITHER, 60));
-            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.45F, 0);
-            world.addEntity(projectile);
-        }));
-        addBehavior(new SlingshotBehavior("redstone", new ItemStack(Items.REDSTONE), 30, (world, player, stack, charged, item) -> {
-            EffectCloudProjectile projectile = new EffectCloudProjectile(effectCloudProjectile, player, world, charged);
-            projectile.setEffect(2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.REDSTONE_BLOCK.getDefaultState()), new EffectInstance(Effects.SLOWNESS, 30, 255));
-            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.45F, 0);
-            world.addEntity(projectile);
-        }));
-        addBehavior(new SlingshotBehavior("glowstone", new ItemStack(Items.GLOWSTONE_DUST), 30, (world, player, stack, charged, item) -> {
-            EffectCloudProjectile projectile = new EffectCloudProjectile(effectCloudProjectile, player, world, charged);
-            projectile.setEffect(2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.GLOWSTONE.getDefaultState()), new EffectInstance(Effects.GLOWING, 200));
-            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.45F, 0);
-            world.addEntity(projectile);
-        }));
+        addCloudBehavior("sand", new ItemStack(Blocks.SAND), 40, 0.45F, 2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SAND.getDefaultState()), new EffectInstance(Effects.INSTANT_DAMAGE), new EffectInstance(Effects.BLINDNESS, 60));
+        addCloudBehavior("soul_sand", new ItemStack(Blocks.SOUL_SAND), 60, 0.45F, 2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SOUL_SAND.getDefaultState()), new EffectInstance(Effects.INSTANT_DAMAGE), new EffectInstance(Effects.WITHER, 60));
+        addCloudBehavior("redstone", new ItemStack(Items.REDSTONE), 30, 0.45F, 2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.REDSTONE_BLOCK.getDefaultState()), new EffectInstance(Effects.SLOWNESS, 30, 255));
+        addCloudBehavior("glowstone", new ItemStack(Items.GLOWSTONE_DUST), 30, 0.45F, 2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.GLOWSTONE.getDefaultState()), new EffectInstance(Effects.GLOWING, 200));
     }
 
     @SubscribeEvent
@@ -136,6 +117,15 @@ public final class Registry {
             projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, velocity, 0);
             if (projectileModifier != null)
                 projectileModifier.accept(projectile);
+            world.addEntity(projectile);
+        }));
+    }
+
+    private static void addCloudBehavior(String name, ItemStack stack, int chargeTime, float velocity, float radius, int duration, IParticleData particleType, EffectInstance... effects) {
+        addBehavior(new SlingshotBehavior(name, stack, chargeTime, (world, player, stacc, charged, item) -> {
+            EffectCloudProjectile projectile = new EffectCloudProjectile(effectCloudProjectile, player, world, charged);
+            projectile.setEffect(radius, duration, particleType, effects);
+            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, velocity, 0);
             world.addEntity(projectile);
         }));
     }
