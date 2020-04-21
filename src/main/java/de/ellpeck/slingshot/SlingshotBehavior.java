@@ -20,6 +20,6 @@ public class SlingshotBehavior {
     }
 
     public interface IProjectileDelegate {
-        Entity createProjectile(World world, PlayerEntity player, ItemStack stack, ItemStack charged, ItemSlingshot item);
+        void createProjectiles(World world, PlayerEntity player, ItemStack stack, ItemStack charged, ItemSlingshot item);
     }
 }

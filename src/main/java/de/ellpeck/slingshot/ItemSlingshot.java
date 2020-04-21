@@ -34,8 +34,7 @@ public class ItemSlingshot extends Item {
 
         if (!worldIn.isRemote) {
             SlingshotBehavior behavior = Registry.getBehavior(charged);
-            Entity projectile = behavior.projectileDelegate.createProjectile(worldIn, playerIn, stack, charged, this);
-            worldIn.addEntity(projectile);
+            behavior.projectileDelegate.createProjectiles(worldIn, playerIn, stack, charged, this);
             worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1, 1);
         }
 

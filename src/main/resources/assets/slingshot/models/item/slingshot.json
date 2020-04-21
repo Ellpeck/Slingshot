@@ -141,6 +141,12 @@
                 "slingshot:acacia_sapling": 1
             },
             "model": "slingshot:item/slingshot_acacia_sapling"
+        },
+        {
+            "predicate": {
+                "slingshot:gravel": 1
+            },
+            "model": "slingshot:item/slingshot_gravel"
         }
     ]
 }
