@@ -159,6 +159,18 @@
                 "slingshot:soul_sand": 1
             },
             "model": "slingshot:item/slingshot_soul_sand"
+        },
+        {
+            "predicate": {
+                "slingshot:redstone": 1
+            },
+            "model": "slingshot:item/slingshot_redstone"
+        },
+        {
+            "predicate": {
+                "slingshot:glowstone": 1
+            },
+            "model": "slingshot:item/slingshot_glowstone"
         }
     ]
 }

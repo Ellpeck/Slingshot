@@ -87,6 +87,18 @@ public final class Registry {
             projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.45F, 0);
             world.addEntity(projectile);
         }));
+        addBehavior(new SlingshotBehavior("redstone", new ItemStack(Items.REDSTONE), 30, (world, player, stack, charged, item) -> {
+            EffectCloudProjectile projectile = new EffectCloudProjectile(effectCloudProjectile, player, world, charged);
+            projectile.setEffect(2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.REDSTONE_BLOCK.getDefaultState()), new EffectInstance(Effects.SLOWNESS, 30, 255));
+            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.45F, 0);
+            world.addEntity(projectile);
+        }));
+        addBehavior(new SlingshotBehavior("glowstone", new ItemStack(Items.GLOWSTONE_DUST), 30, (world, player, stack, charged, item) -> {
+            EffectCloudProjectile projectile = new EffectCloudProjectile(effectCloudProjectile, player, world, charged);
+            projectile.setEffect(2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.GLOWSTONE.getDefaultState()), new EffectInstance(Effects.GLOWING, 200));
+            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.45F, 0);
+            world.addEntity(projectile);
+        }));
     }
 
     @SubscribeEvent
