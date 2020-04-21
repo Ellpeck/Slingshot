@@ -147,6 +147,18 @@
                 "slingshot:gravel": 1
             },
             "model": "slingshot:item/slingshot_gravel"
+        },
+        {
+            "predicate": {
+                "slingshot:sand": 1
+            },
+            "model": "slingshot:item/slingshot_sand"
+        },
+        {
+            "predicate": {
+                "slingshot:soul_sand": 1
+            },
+            "model": "slingshot:item/slingshot_soul_sand"
         }
     ]
 }

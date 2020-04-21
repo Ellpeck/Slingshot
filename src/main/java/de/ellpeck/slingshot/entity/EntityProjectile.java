@@ -68,12 +68,16 @@ public class EntityProjectile extends ProjectileItemEntity {
     public void writeAdditional(CompoundNBT nbt) {
         super.writeAdditional(nbt);
         nbt.putFloat("damage", this.dataManager.get(DAMAGE));
+        nbt.putBoolean("drop_item", this.dropItem);
+        nbt.putFloat("fire_chance", this.fireChance);
     }
 
     @Override
     public void readAdditional(CompoundNBT nbt) {
         super.readAdditional(nbt);
         this.setDamage(nbt.getFloat("damage"));
+        this.dropItem = nbt.getBoolean("drop_item");
+        this.fireChance = nbt.getFloat("fire_chance");
     }
 
     @Override
