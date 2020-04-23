@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.entity.AreaEffectCloudRenderer;
 import net.minecraft.client.renderer.entity.SpriteRenderer;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
@@ -16,10 +17,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.IParticleData;
+import net.minecraft.particles.ParticleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.Explosion;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -45,6 +48,7 @@ public final class Registry {
 
     public static Enchantment capacityEnchantment;
     public static Enchantment reloadEnchantment;
+    public static Enchantment ignitionEnchantment;
 
     public static void setup(FMLCommonSetupEvent event) {
         addPlaceBehavior("carrot", new ItemStack(Items.CARROT), 40, 3, 0.85F, null);
@@ -62,9 +66,13 @@ public final class Registry {
         addPlaceBehavior("torch", new ItemStack(Blocks.TORCH), 50, 6, 2, p -> p.fireChance = 0.25F);
         addPlaceBehavior("redstone_torch", new ItemStack(Blocks.REDSTONE_TORCH), 50, 6, 2, null);
         addBehavior(new SlingshotBehavior("gunpowder", new ItemStack(Items.GUNPOWDER), 40, (world, player, stack, charged, item) -> {
-            GunpowderProjectile projectile = new GunpowderProjectile(gunpowderProjectile, player, player.world, charged);
-            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.65F, 0);
-            world.addEntity(projectile);
+            if (EnchantmentHelper.getEnchantmentLevel(ignitionEnchantment, stack) > 0) {
+                world.createExplosion(null, player.posX, player.posY - 0.5F, player.posZ, 0.5F, Explosion.Mode.NONE);
+            } else {
+                GunpowderProjectile projectile = new GunpowderProjectile(gunpowderProjectile, player, player.world, charged);
+                projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.65F, 0);
+                world.addEntity(projectile);
+            }
         }));
         addPlaceBehavior("oak_sapling", new ItemStack(Blocks.OAK_SAPLING), 40, 5, 0.8F, null);
         addPlaceBehavior("dark_oak_sapling", new ItemStack(Blocks.DARK_OAK_SAPLING), 40, 5, 0.8F, null);
@@ -109,7 +117,8 @@ public final class Registry {
     public static void registerEnchants(RegistryEvent.Register<Enchantment> event) {
         event.getRegistry().registerAll(
                 capacityEnchantment = new SlingshotEnchantment(Enchantment.Rarity.UNCOMMON, 5, 1, 12, 20).setRegistryName("capacity"),
-                reloadEnchantment = new SlingshotEnchantment(Enchantment.Rarity.UNCOMMON, 6, 1, 12, 20).setRegistryName("reload")
+                reloadEnchantment = new SlingshotEnchantment(Enchantment.Rarity.UNCOMMON, 6, 1, 12, 20).setRegistryName("reload"),
+                ignitionEnchantment = new SlingshotEnchantment(Enchantment.Rarity.UNCOMMON, 1, 20, 0, 50).setRegistryName("ignition")
         );
     }
 
@@ -147,6 +156,10 @@ public final class Registry {
             projectile.ignitesEntities = ignites;
             projectile.damagePerSecond = damage;
             projectile.canBeLit = canBeLit;
+            if (canBeLit && EnchantmentHelper.getEnchantmentLevel(ignitionEnchantment, stacc) > 0) {
+                projectile.ignitesEntities = true;
+                projectile.particleType = ParticleTypes.FLAME;
+            }
             projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, velocity, 0);
             world.addEntity(projectile);
         }));

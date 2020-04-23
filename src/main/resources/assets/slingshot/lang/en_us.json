@@ -1,5 +1,6 @@
 {
     "item.slingshot.slingshot": "Slingshot",
     "enchantment.slingshot.capacity": "Capacity",
-    "enchantment.slingshot.reload": "Reload"
+    "enchantment.slingshot.reload": "Reload",
+    "enchantment.slingshot.ignition": "Ignition"
 }
