@@ -12,6 +12,9 @@ import net.minecraft.util.*;
 import net.minecraft.world.World;
 
 public class ItemSlingshot extends Item {
+
+    private static final float[] RELOAD_PERCENTAGES = new float[]{0.95F, 0.9F, 0.8F, 0.65F, 0.6F, 0.5F};
+
     public ItemSlingshot() {
         super(new Properties().maxStackSize(1).maxDamage(672).group(ItemGroup.COMBAT));
         this.setRegistryName(Slingshot.ID, "slingshot");
@@ -99,8 +102,17 @@ public class ItemSlingshot extends Item {
         ItemStack ammo = getAmmo(entity);
         if (ammo.isEmpty())
             return 0;
+        int time = Registry.getBehavior(ammo).chargeTime;
+
         int capacity = EnchantmentHelper.getEnchantmentLevel(Registry.capacityEnchantment, stack);
-        return Registry.getBehavior(ammo).chargeTime * (capacity + 1);
+        if (capacity > 0)
+            time *= (capacity + 1);
+
+        int reload = EnchantmentHelper.getEnchantmentLevel(Registry.reloadEnchantment, stack);
+        if (reload > 0)
+            time *= RELOAD_PERCENTAGES[reload - 1];
+
+        return time;
     }
 
     private static ItemStack getAmmo(LivingEntity entity) {

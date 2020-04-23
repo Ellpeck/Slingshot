@@ -44,6 +44,7 @@ public final class Registry {
     public static EntityType<SpecialEffectCloudEntity> effectCloudEntity;
 
     public static Enchantment capacityEnchantment;
+    public static Enchantment reloadEnchantment;
 
     public static void setup(FMLCommonSetupEvent event) {
         addPlaceBehavior("carrot", new ItemStack(Items.CARROT), 40, 3, 0.85F, null);
@@ -107,7 +108,8 @@ public final class Registry {
     @SubscribeEvent
     public static void registerEnchants(RegistryEvent.Register<Enchantment> event) {
         event.getRegistry().registerAll(
-                capacityEnchantment = new SlingshotEnchantment(Enchantment.Rarity.UNCOMMON, 5, 1, 10, 15).setRegistryName("capacity")
+                capacityEnchantment = new SlingshotEnchantment(Enchantment.Rarity.UNCOMMON, 5, 1, 12, 20).setRegistryName("capacity"),
+                reloadEnchantment = new SlingshotEnchantment(Enchantment.Rarity.UNCOMMON, 6, 1, 12, 20).setRegistryName("reload")
         );
     }
 

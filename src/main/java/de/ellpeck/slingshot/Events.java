@@ -20,8 +20,15 @@ public final class Events {
     public static void onVillagerTrades(VillagerTradesEvent event) {
         if (event.getType() == VillagerProfession.LIBRARIAN) {
             List<VillagerTrades.ITrade> expert = event.getTrades().get(5);
+
+            // capacity
             expert.add(new BasicTrade(6, EnchantedBookItem.getEnchantedItemStack(new EnchantmentData(Registry.capacityEnchantment, 4)), 3, 4));
             expert.add(new BasicTrade(10, EnchantedBookItem.getEnchantedItemStack(new EnchantmentData(Registry.capacityEnchantment, 5)), 2, 5));
+
+            // reload
+            for (int i = 0; i < 3; i++)
+                expert.add(new BasicTrade(8 + 2 * i, EnchantedBookItem.getEnchantedItemStack(new EnchantmentData(Registry.reloadEnchantment, 4 + i)), 4 - i, 3 + i));
+            System.out.println("Added trades");
         }
     }
 }
