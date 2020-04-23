@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
@@ -43,6 +42,7 @@ public final class Registry {
     private static final List<SlingshotBehavior> BEHAVIORS = new ArrayList<>();
     public static Item slingshot;
 
+    public static EntityType<EntityProjectile> projectileEntity;
     public static EntityType<PlacingProjectile> placingProjectile;
     public static EntityType<GunpowderProjectile> gunpowderProjectile;
     public static EntityType<ShotgunProjectile> shotgunProjectile;
@@ -120,6 +120,13 @@ public final class Registry {
             Vec3d vec3d2 = player.getMotion();
             tnt.setMotion(tnt.getMotion().add(vec3d2.x, player.onGround ? 0.0D : vec3d2.y, vec3d2.z));
         }));
+        addBehavior(new SlingshotBehavior("golden_carrot", new ItemStack(Items.GOLDEN_CARROT), 50, (world, player, stack, charged, item) -> {
+            EntityProjectile projectile = new EntityProjectile(projectileEntity, player, world, charged);
+            projectile.setDamage(8);
+            projectile.dropItem = true;
+            projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, 0.9F, 0);
+            world.addEntity(projectile);
+        }));
     }
 
     @SubscribeEvent
@@ -130,6 +137,7 @@ public final class Registry {
     @SubscribeEvent
     public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(
+                projectileEntity = buildEntity("projectile", EntityProjectile::new, 0.25F, 0.25F),
                 placingProjectile = buildEntity("placing", PlacingProjectile::new, 0.25F, 0.25F),
                 gunpowderProjectile = buildEntity("gunpowder", GunpowderProjectile::new, 0.25F, 0.25F),
                 shotgunProjectile = buildEntity("shotgun", ShotgunProjectile::new, 0.25F, 0.25F),
@@ -205,6 +213,7 @@ public final class Registry {
             Minecraft mc = event.getMinecraftSupplier().get();
             ItemRenderer renderer = mc.getItemRenderer();
 
+            RenderingRegistry.registerEntityRenderingHandler(EntityProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.35F));
             RenderingRegistry.registerEntityRenderingHandler(PlacingProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.35F));
             RenderingRegistry.registerEntityRenderingHandler(GunpowderProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.35F));
             RenderingRegistry.registerEntityRenderingHandler(ShotgunProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.15F));

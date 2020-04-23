@@ -195,6 +195,12 @@
                 "slingshot:tnt": 1
             },
             "model": "slingshot:item/slingshot_tnt"
+        },
+        {
+            "predicate": {
+                "slingshot:golden_carrot": 1
+            },
+            "model": "slingshot:item/slingshot_golden_carrot"
         }
     ]
 }
