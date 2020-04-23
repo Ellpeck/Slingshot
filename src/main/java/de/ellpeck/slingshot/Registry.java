@@ -80,6 +80,7 @@ public final class Registry {
             }
         }));
         addCloudBehavior("sand", new ItemStack(Blocks.SAND), 40, 0.45F, 2.5F, 60, false, 1, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SAND.getDefaultState()), new EffectInstance(Effects.BLINDNESS, 60));
+        addCloudBehavior("red_sand", new ItemStack(Blocks.RED_SAND), 40, 0.45F, 2.5F, 60, false, 1, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.RED_SAND.getDefaultState()), new EffectInstance(Effects.BLINDNESS, 60));
         addCloudBehavior("soul_sand", new ItemStack(Blocks.SOUL_SAND), 60, 0.45F, 2.5F, 60, false, 2, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SOUL_SAND.getDefaultState()), new EffectInstance(Effects.WITHER, 60));
         addCloudBehavior("redstone", new ItemStack(Items.REDSTONE), 30, 0.45F, 2.5F, 60, false, 0, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.REDSTONE_BLOCK.getDefaultState()), new EffectInstance(Effects.SLOWNESS, 30, 255));
         addCloudBehavior("glowstone", new ItemStack(Items.GLOWSTONE_DUST), 30, 0.45F, 2.5F, 60, false, 0, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.GLOWSTONE.getDefaultState()), new EffectInstance(Effects.GLOWING, 200));

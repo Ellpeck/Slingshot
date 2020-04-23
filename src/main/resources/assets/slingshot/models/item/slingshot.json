@@ -183,6 +183,12 @@
                 "slingshot:wheat": 1
             },
             "model": "slingshot:item/slingshot_wheat"
+        },
+        {
+            "predicate": {
+                "slingshot:red_sand": 1
+            },
+            "model": "slingshot:item/slingshot_red_sand"
         }
     ]
 }
