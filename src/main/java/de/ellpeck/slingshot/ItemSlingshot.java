@@ -59,6 +59,7 @@ public class ItemSlingshot extends Item {
             behavior.projectileDelegate.createProjectiles(worldIn, playerIn, stack, charged, this);
             worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1, 1);
         }
+        stack.damageItem(1, playerIn, p -> playerIn.sendBreakAnimation(handIn));
 
         ItemStack remain = charged.copy();
         remain.shrink(1);
