@@ -100,10 +100,9 @@ public final class Registry {
         addCloudBehavior("glowstone", new ItemStack(Items.GLOWSTONE_DUST), 30, 0.45F, 2.5F, 60, false, 0, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.GLOWSTONE.getDefaultState()), new EffectInstance(Effects.GLOWING, 200));
         addCloudBehavior("blaze_powder", new ItemStack(Items.BLAZE_POWDER), 30, 0.45F, 2.5F, 20, true, 4, false, ParticleTypes.FLAME);
         addCloudBehavior("wheat", new ItemStack(Items.WHEAT), 40, 0.45F, 2.5F, 100, false, 0, true, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SAND.getDefaultState()), new EffectInstance(Effects.BLINDNESS, 60));
-        addBehavior(tntBehavior = new SlingshotBehavior("tnt", new ItemStack(Blocks.TNT), 10, (world, player, stack, charged, item) -> {
+        addBehavior(tntBehavior = new SlingshotBehavior("tnt", new ItemStack(Blocks.TNT), 20 * 5, (world, player, stack, charged, item) -> {
             TNTEntity tnt = new TNTEntity(world, player.posX, player.posY, player.posZ, player);
             int litTime = (int) (world.getGameTime() - ItemSlingshot.getLightTime(stack));
-            ItemSlingshot.setLightTime(stack, 0);
             tnt.setFuse(20 * 4 - litTime);
             tnt.world.addEntity(tnt);
 

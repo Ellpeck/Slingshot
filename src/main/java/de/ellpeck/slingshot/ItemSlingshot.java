@@ -43,8 +43,7 @@ public class ItemSlingshot extends Item {
         if (behavior == Registry.tntBehavior) {
             if (handIn != Hand.MAIN_HAND)
                 return new ActionResult<>(ActionResultType.FAIL, stack);
-            long time = getLightTime(stack);
-            if (time <= 0) {
+            if (getLightTime(stack) <= 0) {
                 ItemStack off = playerIn.getHeldItemOffhand();
                 if (off.getItem() != Items.FLINT_AND_STEEL)
                     return new ActionResult<>(ActionResultType.FAIL, stack);
@@ -59,6 +58,9 @@ public class ItemSlingshot extends Item {
             behavior.projectileDelegate.createProjectiles(worldIn, playerIn, stack, charged, this);
             worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1, 1);
         }
+
+        if (behavior == Registry.tntBehavior)
+            setLightTime(stack, EnchantmentHelper.getEnchantmentLevel(Registry.ignitionEnchantment, stack) > 0 ? worldIn.getGameTime() : 0);
         stack.damageItem(1, playerIn, p -> playerIn.sendBreakAnimation(handIn));
 
         ItemStack remain = charged.copy();
