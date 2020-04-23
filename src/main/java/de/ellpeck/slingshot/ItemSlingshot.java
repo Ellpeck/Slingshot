@@ -1,5 +1,6 @@
 package de.ellpeck.slingshot;
 
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
@@ -15,7 +16,7 @@ public class ItemSlingshot extends Item {
         super(new Properties().maxStackSize(1).maxDamage(672).group(ItemGroup.COMBAT));
         this.setRegistryName(Slingshot.ID, "slingshot");
 
-        this.addPropertyOverride(new ResourceLocation(Slingshot.ID, "pull"), (stack, world, entity) -> entity != null && getChargedItem(stack).isEmpty() ? (stack.getUseDuration() - entity.getItemInUseCount()) / (float) getChargeTime(entity) : 0);
+        this.addPropertyOverride(new ResourceLocation(Slingshot.ID, "pull"), (stack, world, entity) -> entity != null && getChargedItem(stack).isEmpty() ? (stack.getUseDuration() - entity.getItemInUseCount()) / (float) getChargeTime(entity, stack) : 0);
         this.addPropertyOverride(new ResourceLocation(Slingshot.ID, "pulling"), (stack, world, entity) -> entity != null && entity.isHandActive() && entity.getActiveItemStack() == stack && getChargedItem(stack).isEmpty() ? 1 : 0);
     }
 
@@ -38,7 +39,11 @@ public class ItemSlingshot extends Item {
             worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1, 1);
         }
 
-        setChargedItem(stack, ItemStack.EMPTY);
+        ItemStack remain = charged.copy();
+        remain.shrink(1);
+        setChargedItem(stack, remain);
+        if (remain.getCount() > 0)
+            playerIn.getCooldownTracker().setCooldown(this, 10);
         return new ActionResult<>(ActionResultType.SUCCESS, stack);
     }
 
@@ -47,7 +52,7 @@ public class ItemSlingshot extends Item {
         if (!getChargedItem(stack).isEmpty())
             return;
         int using = this.getUseDuration(stack) - timeLeft;
-        int remain = getChargeTime(entityLiving) - using;
+        int remain = getChargeTime(entityLiving, stack) - using;
         if (remain > 0)
             return;
 
@@ -56,9 +61,10 @@ public class ItemSlingshot extends Item {
         if (ammo.isEmpty())
             return;
         ItemStack charged = ammo.copy();
-        charged.setCount(1);
+        int amount = Math.min(ammo.getCount(), EnchantmentHelper.getEnchantmentLevel(Registry.capacityEnchantment, stack) + 1);
+        charged.setCount(amount);
         setChargedItem(stack, charged);
-        ammo.shrink(1);
+        ammo.shrink(amount);
     }
 
     @Override
@@ -69,6 +75,11 @@ public class ItemSlingshot extends Item {
     @Override
     public int getUseDuration(ItemStack stack) {
         return 72000;
+    }
+
+    @Override
+    public int getItemEnchantability() {
+        return 10;
     }
 
     public static ItemStack getChargedItem(ItemStack stack) {
@@ -84,11 +95,12 @@ public class ItemSlingshot extends Item {
         stack.getOrCreateTag().put("charged", charged.write(new CompoundNBT()));
     }
 
-    private static int getChargeTime(LivingEntity entity) {
+    private static int getChargeTime(LivingEntity entity, ItemStack stack) {
         ItemStack ammo = getAmmo(entity);
         if (ammo.isEmpty())
             return 0;
-        return Registry.getBehavior(ammo).chargeTime;
+        int capacity = EnchantmentHelper.getEnchantmentLevel(Registry.capacityEnchantment, stack);
+        return Registry.getBehavior(ammo).chargeTime * (capacity + 1);
     }
 
     private static ItemStack getAmmo(LivingEntity entity) {

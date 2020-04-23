@@ -3,11 +3,10 @@ package de.ellpeck.slingshot;
 import de.ellpeck.slingshot.entity.*;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.entity.AreaEffectCloudRenderer;
 import net.minecraft.client.renderer.entity.SpriteRenderer;
-import net.minecraft.client.renderer.model.BlockPart;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
@@ -17,7 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
@@ -44,6 +42,8 @@ public final class Registry {
     public static EntityType<ShotgunProjectile> shotgunProjectile;
     public static EntityType<EffectCloudProjectile> effectCloudProjectile;
     public static EntityType<SpecialEffectCloudEntity> effectCloudEntity;
+
+    public static Enchantment capacityEnchantment;
 
     public static void setup(FMLCommonSetupEvent event) {
         addPlaceBehavior("carrot", new ItemStack(Items.CARROT), 40, 3, 0.85F, null);
@@ -101,6 +101,13 @@ public final class Registry {
                 shotgunProjectile = buildEntity("shotgun", ShotgunProjectile::new, 0.25F, 0.25F),
                 effectCloudProjectile = buildEntity("effect_cloud", EffectCloudProjectile::new, 0.25F, 0.25F),
                 effectCloudEntity = buildEntity("special_effect_cloud", SpecialEffectCloudEntity::new, 6, 0.5F)
+        );
+    }
+
+    @SubscribeEvent
+    public static void registerEnchants(RegistryEvent.Register<Enchantment> event) {
+        event.getRegistry().registerAll(
+                capacityEnchantment = new SlingshotEnchantment(Enchantment.Rarity.UNCOMMON, 5, 1, 10, 15).setRegistryName("capacity")
         );
     }
 
