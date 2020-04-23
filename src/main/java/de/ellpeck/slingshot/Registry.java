@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.EnderPearlEntity;
+import net.minecraft.entity.item.TNTEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -22,6 +23,8 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -49,6 +52,8 @@ public final class Registry {
     public static Enchantment capacityEnchantment;
     public static Enchantment reloadEnchantment;
     public static Enchantment ignitionEnchantment;
+
+    public static SlingshotBehavior tntBehavior;
 
     public static void setup(FMLCommonSetupEvent event) {
         addPlaceBehavior("carrot", new ItemStack(Items.CARROT), 40, 3, 0.85F, null);
@@ -95,6 +100,27 @@ public final class Registry {
         addCloudBehavior("glowstone", new ItemStack(Items.GLOWSTONE_DUST), 30, 0.45F, 2.5F, 60, false, 0, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.GLOWSTONE.getDefaultState()), new EffectInstance(Effects.GLOWING, 200));
         addCloudBehavior("blaze_powder", new ItemStack(Items.BLAZE_POWDER), 30, 0.45F, 2.5F, 20, true, 4, false, ParticleTypes.FLAME);
         addCloudBehavior("wheat", new ItemStack(Items.WHEAT), 40, 0.45F, 2.5F, 100, false, 0, true, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SAND.getDefaultState()), new EffectInstance(Effects.BLINDNESS, 60));
+        addBehavior(tntBehavior = new SlingshotBehavior("tnt", new ItemStack(Blocks.TNT), 10, (world, player, stack, charged, item) -> {
+            TNTEntity tnt = new TNTEntity(world, player.posX, player.posY, player.posZ, player);
+            int litTime = (int) (world.getGameTime() - ItemSlingshot.getLightTime(stack));
+            ItemSlingshot.setLightTime(stack, 0);
+            tnt.setFuse(20 * 4 - litTime);
+            tnt.world.addEntity(tnt);
+
+            // ThrowableEntity#shoot copypasta
+            float f0 = -MathHelper.sin(player.rotationYaw * ((float) Math.PI / 180F)) * MathHelper.cos(player.rotationPitch * ((float) Math.PI / 180F));
+            float f1 = -MathHelper.sin((player.rotationPitch) * ((float) Math.PI / 180F));
+            float f2 = MathHelper.cos(player.rotationYaw * ((float) Math.PI / 180F)) * MathHelper.cos(player.rotationPitch * ((float) Math.PI / 180F));
+            Vec3d vec3d = (new Vec3d(f0, f1, f2)).normalize().scale(0.85F);
+            tnt.setMotion(vec3d);
+            float f = MathHelper.sqrt(Entity.horizontalMag(vec3d));
+            tnt.rotationYaw = (float) (MathHelper.atan2(vec3d.x, vec3d.z) * (double) (180F / (float) Math.PI));
+            tnt.rotationPitch = (float) (MathHelper.atan2(vec3d.y, f) * (double) (180F / (float) Math.PI));
+            tnt.prevRotationYaw = tnt.rotationYaw;
+            tnt.prevRotationPitch = tnt.rotationPitch;
+            Vec3d vec3d2 = player.getMotion();
+            tnt.setMotion(tnt.getMotion().add(vec3d2.x, player.onGround ? 0.0D : vec3d2.y, vec3d2.z));
+        }));
     }
 
     @SubscribeEvent

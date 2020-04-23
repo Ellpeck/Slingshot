@@ -189,6 +189,12 @@
                 "slingshot:red_sand": 1
             },
             "model": "slingshot:item/slingshot_red_sand"
+        },
+        {
+            "predicate": {
+                "slingshot:tnt": 1
+            },
+            "model": "slingshot:item/slingshot_tnt"
         }
     ]
 }

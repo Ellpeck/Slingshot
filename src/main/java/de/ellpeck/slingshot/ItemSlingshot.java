@@ -6,9 +6,11 @@ import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.*;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
 public class ItemSlingshot extends Item {
@@ -36,8 +38,24 @@ public class ItemSlingshot extends Item {
             return new ActionResult<>(ActionResultType.SUCCESS, stack);
         }
 
+        // special tnt behavior
+        SlingshotBehavior behavior = Registry.getBehavior(charged);
+        if (behavior == Registry.tntBehavior) {
+            if (handIn != Hand.MAIN_HAND)
+                return new ActionResult<>(ActionResultType.FAIL, stack);
+            long time = getLightTime(stack);
+            if (time <= 0) {
+                ItemStack off = playerIn.getHeldItemOffhand();
+                if (off.getItem() != Items.FLINT_AND_STEEL)
+                    return new ActionResult<>(ActionResultType.FAIL, stack);
+                off.damageItem(1, playerIn, p -> p.sendBreakAnimation(Hand.OFF_HAND));
+
+                setLightTime(stack, worldIn.getGameTime());
+                return new ActionResult<>(ActionResultType.SUCCESS, stack);
+            }
+        }
+
         if (!worldIn.isRemote) {
-            SlingshotBehavior behavior = Registry.getBehavior(charged);
             behavior.projectileDelegate.createProjectiles(worldIn, playerIn, stack, charged, this);
             worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1, 1);
         }
@@ -68,6 +86,33 @@ public class ItemSlingshot extends Item {
         charged.setCount(amount);
         setChargedItem(stack, charged);
         ammo.shrink(amount);
+
+        SlingshotBehavior behavior = Registry.getBehavior(ammo);
+        if (behavior == Registry.tntBehavior && EnchantmentHelper.getEnchantmentLevel(Registry.ignitionEnchantment, stack) > 0)
+            setLightTime(stack, worldIn.getGameTime());
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        if (worldIn.isRemote)
+            return;
+        ItemStack charged = getChargedItem(stack);
+        if (charged.isEmpty())
+            return;
+        SlingshotBehavior behavior = Registry.getBehavior(charged);
+        if (behavior != Registry.tntBehavior)
+            return;
+        long time = getLightTime(stack);
+        if (time <= 0)
+            return;
+        int litTime = (int) (worldIn.getGameTime() - time);
+        if (litTime >= 20 * 4) {
+            worldIn.createExplosion(null, entityIn.posX, entityIn.posY, entityIn.posZ, 4, Explosion.Mode.BREAK);
+            if (entityIn instanceof PlayerEntity)
+                stack.damageItem(stack.getMaxDamage(), (PlayerEntity) entityIn, e -> e.sendBreakAnimation(Hand.MAIN_HAND));
+            setChargedItem(stack, ItemStack.EMPTY);
+            setLightTime(stack, 0);
+        }
     }
 
     @Override
@@ -96,6 +141,16 @@ public class ItemSlingshot extends Item {
 
     private static void setChargedItem(ItemStack stack, ItemStack charged) {
         stack.getOrCreateTag().put("charged", charged.write(new CompoundNBT()));
+    }
+
+    public static long getLightTime(ItemStack stack) {
+        if (!stack.hasTag())
+            return 0;
+        return stack.getTag().getLong("light_time");
+    }
+
+    public static void setLightTime(ItemStack stack, long time) {
+        stack.getOrCreateTag().putLong("light_time", time);
     }
 
     private static int getChargeTime(LivingEntity entity, ItemStack stack) {
