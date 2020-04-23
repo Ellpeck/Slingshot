@@ -5,6 +5,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.entity.AreaEffectCloudRenderer;
 import net.minecraft.client.renderer.entity.SpriteRenderer;
 import net.minecraft.client.renderer.model.BlockPart;
 import net.minecraft.entity.Entity;
@@ -16,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.IParticleData;
+import net.minecraft.particles.ParticleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
@@ -41,6 +43,7 @@ public final class Registry {
     public static EntityType<GunpowderProjectile> gunpowderProjectile;
     public static EntityType<ShotgunProjectile> shotgunProjectile;
     public static EntityType<EffectCloudProjectile> effectCloudProjectile;
+    public static EntityType<SpecialEffectCloudEntity> effectCloudEntity;
 
     public static void setup(FMLCommonSetupEvent event) {
         addPlaceBehavior("carrot", new ItemStack(Items.CARROT), 40, 3, 0.85F, null);
@@ -76,10 +79,12 @@ public final class Registry {
                 world.addEntity(projectile);
             }
         }));
-        addCloudBehavior("sand", new ItemStack(Blocks.SAND), 40, 0.45F, 2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SAND.getDefaultState()), new EffectInstance(Effects.INSTANT_DAMAGE), new EffectInstance(Effects.BLINDNESS, 60));
-        addCloudBehavior("soul_sand", new ItemStack(Blocks.SOUL_SAND), 60, 0.45F, 2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SOUL_SAND.getDefaultState()), new EffectInstance(Effects.INSTANT_DAMAGE), new EffectInstance(Effects.WITHER, 60));
-        addCloudBehavior("redstone", new ItemStack(Items.REDSTONE), 30, 0.45F, 2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.REDSTONE_BLOCK.getDefaultState()), new EffectInstance(Effects.SLOWNESS, 30, 255));
-        addCloudBehavior("glowstone", new ItemStack(Items.GLOWSTONE_DUST), 30, 0.45F, 2.5F, 60, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.GLOWSTONE.getDefaultState()), new EffectInstance(Effects.GLOWING, 200));
+        addCloudBehavior("sand", new ItemStack(Blocks.SAND), 40, 0.45F, 2.5F, 60, false, 1, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SAND.getDefaultState()), new EffectInstance(Effects.BLINDNESS, 60));
+        addCloudBehavior("soul_sand", new ItemStack(Blocks.SOUL_SAND), 60, 0.45F, 2.5F, 60, false, 2, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SOUL_SAND.getDefaultState()), new EffectInstance(Effects.WITHER, 60));
+        addCloudBehavior("redstone", new ItemStack(Items.REDSTONE), 30, 0.45F, 2.5F, 60, false, 0, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.REDSTONE_BLOCK.getDefaultState()), new EffectInstance(Effects.SLOWNESS, 30, 255));
+        addCloudBehavior("glowstone", new ItemStack(Items.GLOWSTONE_DUST), 30, 0.45F, 2.5F, 60, false, 0, false, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.GLOWSTONE.getDefaultState()), new EffectInstance(Effects.GLOWING, 200));
+        addCloudBehavior("blaze_powder", new ItemStack(Items.BLAZE_POWDER), 30, 0.45F, 2.5F, 20, true, 4, false, ParticleTypes.FLAME);
+        addCloudBehavior("wheat", new ItemStack(Items.WHEAT), 40, 0.45F, 2.5F, 100, false, 0, true, new BlockParticleData(ParticleTypes.FALLING_DUST, Blocks.SAND.getDefaultState()), new EffectInstance(Effects.BLINDNESS, 60));
     }
 
     @SubscribeEvent
@@ -90,17 +95,18 @@ public final class Registry {
     @SubscribeEvent
     public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(
-                placingProjectile = buildProjectile("placing", PlacingProjectile::new),
-                gunpowderProjectile = buildProjectile("gunpowder", GunpowderProjectile::new),
-                shotgunProjectile = buildProjectile("shotgun", ShotgunProjectile::new),
-                effectCloudProjectile = buildProjectile("effect_cloud", EffectCloudProjectile::new)
+                placingProjectile = buildEntity("placing", PlacingProjectile::new, 0.25F, 0.25F),
+                gunpowderProjectile = buildEntity("gunpowder", GunpowderProjectile::new, 0.25F, 0.25F),
+                shotgunProjectile = buildEntity("shotgun", ShotgunProjectile::new, 0.25F, 0.25F),
+                effectCloudProjectile = buildEntity("effect_cloud", EffectCloudProjectile::new, 0.25F, 0.25F),
+                effectCloudEntity = buildEntity("special_effect_cloud", SpecialEffectCloudEntity::new, 6, 0.5F)
         );
     }
 
-    private static <T extends EntityProjectile> EntityType<T> buildProjectile(String name, EntityType.IFactory<T> factory) {
+    private static <T extends Entity> EntityType<T> buildEntity(String name, EntityType.IFactory<T> factory, float width, float height) {
         return (EntityType<T>) EntityType.Builder
                 .create(factory, EntityClassification.MISC)
-                .size(0.25F, 0.25F).setShouldReceiveVelocityUpdates(true).setTrackingRange(64)
+                .size(width, height).setShouldReceiveVelocityUpdates(true).setTrackingRange(64)
                 .setUpdateInterval(3).build(Slingshot.ID + ":" + name).setRegistryName(name);
     }
 
@@ -121,10 +127,16 @@ public final class Registry {
         }));
     }
 
-    private static void addCloudBehavior(String name, ItemStack stack, int chargeTime, float velocity, float radius, int duration, IParticleData particleType, EffectInstance... effects) {
+    private static void addCloudBehavior(String name, ItemStack stack, int chargeTime, float velocity, float radius, int duration, boolean ignites, float damage, boolean canBeLit, IParticleData particleType, EffectInstance... effects) {
         addBehavior(new SlingshotBehavior(name, stack, chargeTime, (world, player, stacc, charged, item) -> {
             EffectCloudProjectile projectile = new EffectCloudProjectile(effectCloudProjectile, player, world, charged);
-            projectile.setEffect(radius, duration, particleType, effects);
+            projectile.radius = radius;
+            projectile.duration = duration;
+            projectile.particleType = particleType;
+            projectile.effects = effects;
+            projectile.ignitesEntities = ignites;
+            projectile.damagePerSecond = damage;
+            projectile.canBeLit = canBeLit;
             projectile.shoot(player, player.rotationPitch, player.rotationYaw, 0, velocity, 0);
             world.addEntity(projectile);
         }));
@@ -149,6 +161,7 @@ public final class Registry {
             RenderingRegistry.registerEntityRenderingHandler(GunpowderProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.35F));
             RenderingRegistry.registerEntityRenderingHandler(ShotgunProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.15F));
             RenderingRegistry.registerEntityRenderingHandler(EffectCloudProjectile.class, manager -> new SpriteRenderer<>(manager, renderer, 0.35F));
+            RenderingRegistry.registerEntityRenderingHandler(SpecialEffectCloudEntity.class, AreaEffectCloudRenderer::new);
         }
     }
 }

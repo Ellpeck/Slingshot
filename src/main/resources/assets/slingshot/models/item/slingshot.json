@@ -171,6 +171,18 @@
                 "slingshot:glowstone": 1
             },
             "model": "slingshot:item/slingshot_glowstone"
+        },
+        {
+            "predicate": {
+                "slingshot:blaze_powder": 1
+            },
+            "model": "slingshot:item/slingshot_blaze_powder"
+        },
+        {
+            "predicate": {
+                "slingshot:wheat": 1
+            },
+            "model": "slingshot:item/slingshot_wheat"
         }
     ]
 }

@@ -10,26 +10,21 @@ import net.minecraft.entity.projectile.ProjectileItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class EffectCloudProjectile extends EntityProjectile {
 
-    private float radius;
-    private int duration;
-    private IParticleData particleType;
-    private EffectInstance[] effects;
+    public float radius;
+    public int duration;
+    public IParticleData particleType;
+    public EffectInstance[] effects;
+    public float damagePerSecond;
+    public boolean ignitesEntities;
+    public boolean canBeLit;
 
     public EffectCloudProjectile(EntityType<? extends ProjectileItemEntity> type, World worldIn) {
         super(type, worldIn);
@@ -39,20 +34,16 @@ public class EffectCloudProjectile extends EntityProjectile {
         super(type, entity, worldIn, stack);
     }
 
-    public void setEffect(float radius, int duration, IParticleData particleType, EffectInstance... effects) {
-        this.radius = radius;
-        this.duration = duration;
-        this.particleType = particleType;
-        this.effects = effects;
-    }
-
     @Override
     protected void onImpact(RayTraceResult result) {
         if (!this.world.isRemote) {
-            AreaEffectCloudEntity effect = new AreaEffectCloudEntity(this.world, this.posX, this.posY, this.posZ);
+            SpecialEffectCloudEntity effect = new SpecialEffectCloudEntity(this.world, this.posX, this.posY, this.posZ);
             effect.setRadius(this.radius);
             effect.setDuration(this.duration);
             effect.setParticleData(this.particleType);
+            effect.damagePerSecond = this.damagePerSecond;
+            effect.ignitesEntities = this.ignitesEntities;
+            effect.canBeLit = this.canBeLit;
             for (EffectInstance e : this.effects)
                 effect.addEffect(new EffectInstance(e));
             this.world.addEntity(effect);
@@ -70,6 +61,9 @@ public class EffectCloudProjectile extends EntityProjectile {
         for (EffectInstance effect : this.effects)
             list.add(effect.write(new CompoundNBT()));
         nbt.put("effects", list);
+        nbt.putBoolean("ignites", this.ignitesEntities);
+        nbt.putFloat("damage", this.damagePerSecond);
+        nbt.putBoolean("can_be_lit", this.canBeLit);
     }
 
     @Override
@@ -85,5 +79,8 @@ public class EffectCloudProjectile extends EntityProjectile {
         this.effects = new EffectInstance[list.size()];
         for (int i = 0; i < list.size(); i++)
             this.effects[i] = EffectInstance.read(list.getCompound(i));
+        this.ignitesEntities = nbt.getBoolean("ignites");
+        this.damagePerSecond = nbt.getFloat("damage");
+        this.canBeLit = nbt.getBoolean("can_be_lit");
     }
 }
